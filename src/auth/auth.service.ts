@@ -78,7 +78,7 @@ export class AuthService {
         id: userId,
       },
     });
-    
+
     if (!user || !user.hashedRefreshToken) {
       throw new ForbiddenException('Acces Denied');
     }
@@ -128,7 +128,7 @@ export class AuthService {
     ]);
 
     return {
-      acces_token: accessToken,
+      access_token: accessToken,
       refresh_token: refreshToken,
     };
   }
