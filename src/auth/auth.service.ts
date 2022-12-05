@@ -72,6 +72,27 @@ export class AuthService {
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
     return tokens;
   }
+  async refreshTokens(userId: number, refreshToken: string): Promise<Tokens> {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    
+    if (!user || !user.hashedRefreshToken) {
+      throw new ForbiddenException('Acces Denied');
+    }
+
+    const rtMatches = await bcrypt.compare(
+      refreshToken,
+      user.hashedRefreshToken,
+    );
+    if (!rtMatches) throw new ForbiddenException('Acces Denied');
+
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
+    return tokens;
+  }
 
   async logout(userId: number) {
     const user = await this.prismaService.user.updateMany({

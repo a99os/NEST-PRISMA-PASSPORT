@@ -6,8 +6,10 @@ import {
   Param,
   Post,
   Res,
+  UseGuards,
 } from '@nestjs/common';
-import { GetCurrentUserId, Public } from '../common/decorators';
+import { GetCurrentUser, GetCurrentUserId, Public } from '../common/decorators';
+import { RefreshTokenGuard } from '../common/guards';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { Tokens } from './types';
@@ -38,5 +40,16 @@ export class AuthController {
   ): Promise<boolean> {
     res.clearCookie('refresh_token');
     return this.authService.logout(userId);
+  }
+
+  @Public()
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refreshTokens(
+    @GetCurrentUserId() userId: number,
+    @GetCurrentUser('refreshToken') refreshToken: string,
+  ): Promise<Tokens> {
+    return this.authService.refreshTokens(userId, refreshToken);
   }
 }
