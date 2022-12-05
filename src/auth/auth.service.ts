@@ -73,6 +73,23 @@ export class AuthService {
     return tokens;
   }
 
+  async logout(userId: number) {
+    const user = await this.prismaService.user.updateMany({
+      where: {
+        id: Number(userId),
+        hashedRefreshToken: {
+          not: null,
+        },
+      },
+      data: {
+        hashedRefreshToken: null,
+      },
+    });
+    console.log(user);
+    if (!user) throw new ForbiddenException('access denied');
+    return true;
+  }
+
   async getTokens(userId: number, email: string): Promise<Tokens> {
     const jwtPayload: JwtPayload = {
       sub: userId,
