@@ -12,4 +12,10 @@ export class AuthController {
   signup(@Body() authDto: AuthDto): Promise<Tokens> {
     return this.authService.signup(authDto);
   }
+
+  @Post('signin')
+  @HttpCode(HttpStatus.CREATED)
+  async signin(@Body() authDto: AuthDto): Promise<Tokens> {
+    return await this.authService.signin(authDto);
+  }
 }
