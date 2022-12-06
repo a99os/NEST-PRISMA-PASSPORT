@@ -18,7 +18,8 @@ export class RefreshTokenFromCookieStrategy extends PassportStrategy(
 ) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: cookieExtractor,
       secretOrKey: process.env.REFRESH_TOKEN_KEY,
       passReqToCallback: true,
     });
