@@ -8,6 +8,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { GetCurrentUser, GetCurrentUserId, Public } from '../common/decorators';
 import { RefreshTokenGuard } from '../common/guards';
 import { AuthService } from './auth.service';
@@ -21,25 +22,31 @@ export class AuthController {
   @Public()
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  signup(@Body() authDto: AuthDto): Promise<Tokens> {
-    return this.authService.signup(authDto);
+  signup(
+    @Body() authDto: AuthDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Tokens> {
+    return this.authService.signup(authDto, res);
   }
 
   @Public()
   @Post('signin')
   @HttpCode(HttpStatus.CREATED)
-  async signin(@Body() authDto: AuthDto): Promise<Tokens> {
-    return await this.authService.signin(authDto);
+  async signin(
+    @Body() authDto: AuthDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Tokens> {
+    return await this.authService.signin(authDto, res);
   }
 
-  @Post('logaut')
-  @HttpCode(HttpStatus.CREATED)
-  logaut(
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(
     @GetCurrentUserId() userId: number,
     @Res({ passthrough: true }) res,
   ): Promise<boolean> {
     res.clearCookie('refresh_token');
-    return this.authService.logout(userId);
+    return this.authService.logout(userId, res);
   }
 
   @Public()
@@ -49,8 +56,9 @@ export class AuthController {
   async refreshTokens(
     @GetCurrentUserId() userId: number,
     @GetCurrentUser('refreshToken') refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<Tokens> {
     console.log(refreshToken);
-    return this.authService.refreshTokens(userId, refreshToken);
+    return this.authService.refreshTokens(userId, refreshToken, res);
   }
 }
